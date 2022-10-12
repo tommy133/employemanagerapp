@@ -12,6 +12,7 @@ import { EmployeeService } from './employee.service';
 export class AppComponent implements OnInit{
   title = 'employeemanagerapp';
   public employees: Employee[] = [];
+  public editEmployee!: Employee;
 
   constructor(private employeeService: EmployeeService){}
 
@@ -32,7 +33,22 @@ export class AppComponent implements OnInit{
 
   public onAddEmployee(addForm: NgForm): void{
     document.getElementById('add-employee-form')?.click();
-    this.employeeService.addEmployee(addForm.value).subscribe(
+    this.employeeService.addEmployee(addForm.value).subscribe( 
+      //addForm.value=json representation of the actual input (binding with ngModel)
+      (response: Employee) => {
+        console.log(response);
+        this.getEmployees();
+        addForm.reset();
+      },
+      (error: HttpErrorResponse) => {
+        alert(error.message);
+        addForm.reset();
+      }
+    );
+  }
+
+  public onUpdateEmployee(employee: Employee): void{
+    this.employeeService.updateEmployee(employee).subscribe(
       (response: Employee) => {
         console.log(response);
         this.getEmployees();
@@ -54,6 +70,7 @@ export class AppComponent implements OnInit{
       button.setAttribute('data-target', '#addEmployeeModal');
     }
     if (mode == 'edit') {
+      this.editEmployee = employee;
       button.setAttribute('data-target', '#updateEmployeeModal');
     }
     if (mode == 'delete') {
